@@ -37,7 +37,11 @@ public class ReaderXLS {
                 cells.next();
                 while (cells.hasNext()) {
                     Cell cell = cells.next();
-                    user.addMark(cell.getNumericCellValue());
+                    if (cell.getNumericCellValue() == 99.) {
+                        user.addMark(null);
+                    } else {
+                        user.addMark(cell.getNumericCellValue());
+                    }
                 }
                 listOfMarks.addUser(user);
             }
