@@ -8,5 +8,21 @@
     <artifactId>collaborative-filtering</artifactId>
     <version>1.0-SNAPSHOT</version>
 
+    <properties>
+        <version.apache.poi>4.0.0</version.apache.poi>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+            <version>${version.apache.poi}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>${version.apache.poi}</version>
+        </dependency>
+    </dependencies>
 
 </project>
