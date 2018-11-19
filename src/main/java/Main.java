@@ -9,7 +9,7 @@ public class Main {
     public static void main(String[] args) {
         ListOfMarks listOfMarks = readerXLS.readTableData("src/main/resources/jester-data-1.xls");
         //System.out.println(listOfMarks);
-        List<Double> meanMarks = CalculationServise.calculatMeanMark(listOfMarks);
+        List<Double> meanMarks = CalculationServise.calculatMeanMarksList(listOfMarks);
         List<List<Double>> proximityMeasure = CalculationServise.countProximityMeasurePirson(listOfMarks, meanMarks, 1);
         for (List<Double> list : proximityMeasure) {
             for (Double value : list) {
@@ -17,6 +17,11 @@ public class Main {
             }
             System.out.println();
         }
+        proximityMeasure.stream().flatMap(el -> el.stream()).forEach(el -> {
+            if (el != null && el.compareTo(0.) < 0) {
+                System.out.println("Pearson less than 0");
+            }
+        });
         List<List<Integer>> closestElements = CalculationServise.getClosestElements(proximityMeasure);
         for (List<Integer> list : closestElements) {
             for (Integer value : list) {
