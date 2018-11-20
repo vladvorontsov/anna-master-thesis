@@ -1,5 +1,6 @@
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
 
 /**
  * Created by Anna on 11.11.2018.
@@ -94,6 +95,7 @@ public class CalculationServise {
             deviationUserFromMean.add(listDeviationUsers);
 
             //calculating value of minimization function and adding it to list with index of position vector of X
+            System.out.println("calculating function");
             Double functionValue = calculateFunctionOfMinimization(listOfMarks, closestElements, listDeviationUsers,
                     listDeviationElements, proximityMeasure, meanMark, lambda3);
             Pair pair = new Pair(functionValue, i);
@@ -102,32 +104,19 @@ public class CalculationServise {
         }
 
         double epsilon = 1;
+        System.out.println("Before while");
         while (epsilon > 0.1) {
-
-            List<Double> vectorX0Users = new ArrayList<>(listOfMarks.size());
-            List<Double> vectorX0Elements = new ArrayList<>(listOfMarks.getUser(0));
+            System.out.println("epsilon: " + epsilon);
+            List<Double> vectorX0Users = DoubleStream.generate(() -> 0).limit(listOfMarks.size()).boxed().collect(Collectors.toList());
+            List<Double> vectorX0Elements = DoubleStream.generate(() -> 0).limit(listOfMarks.getUser(0).size()).boxed().collect(Collectors.toList());
 
             for (int i = 0; i < (listOfMarks.getUser(0).size() + listOfMarks.size() + 1); i++) {
                 //calculating X0 with Xh
-                vectorX0Users = creatingNewVectorXforUsersOrElements(listOfMarks.size(),1,1,vectorX0Users,
+                vectorX0Users = creatingNewVectorXforUsersOrElements(listOfMarks.size(), 1, 1, vectorX0Users,
                         deviationUserFromMean.get(i));
-                vectorX0Elements = creatingNewVectorXforUsersOrElements(listOfMarks.getUser(0).size(),1,
-                        1,vectorX0Elements, deviationElementFromMean.get(i));
-                /*for (int j = 0; j < listOfMarks.size(); j++) {
-                    vectorX0Users.set(j, vectorX0Users.get(j) + deviationUserFromMean.get(i).get(j));
-                }
-                for (int k = 0; k < listOfMarks.getUser(0).size(); k++) {
-                    vectorX0Elements.set(k, vectorX0Elements.get(k) + deviationElementFromMean.get(i).get(k));
-                }*/
+                vectorX0Elements = creatingNewVectorXforUsersOrElements(listOfMarks.getUser(0).size(), 1,
+                        1, vectorX0Elements, deviationElementFromMean.get(i));
             }
-            /*for (int j = 0; j < listOfMarks.size(); j++) {
-                //calculating X0 without Xh
-                vectorX0Users.set(j, 1 / listOfMarks.size() * (vectorX0Users.get(j) - deviationUserFromMean.get(listOfFunctions.
-                        get(listOfFunctions.size() - 1).getIntegerOfX()).get(j)));
-                //calculation Xr (Step 7. Part 1)
-                vectorXrUsers.set(j, (1 + alpfa) * vectorX0Users.get(j) - alpfa * deviationUserFromMean.get(listOfFunctions.
-                        get(listOfFunctions.size() - 1).getIntegerOfX()).get(j));
-            }*/
             vectorX0Users = creatingNewVectorXforUsersOrElements(listOfMarks.size(), 1 / listOfMarks.size(),
                     -1 / listOfMarks.size(), vectorX0Users, deviationUserFromMean.get(listOfFunctions.
                             get(listOfFunctions.size() - 1).getIntegerOfX()));
@@ -143,15 +132,6 @@ public class CalculationServise {
                     1 + alpfa, -alpfa, vectorX0Elements, deviationElementFromMean.
                             get(listOfFunctions.get(listOfFunctions.size() - 1).getIntegerOfX()));
 
-            /*for (int k = 0; k < listOfMarks.getUser(0).size(); k++) {
-                //calculating X0 without Xh
-                vectorX0Elements.set(k, 1 / listOfMarks.getUser(0).size() * (vectorX0Elements.get(k) - deviationElementFromMean.
-                        get(listOfFunctions.get(listOfFunctions.size() - 1).getIntegerOfX()).get(k)));
-                //calculation Xr (Step 7. Part 1)
-                vectorXrElements.set(k, (1 + alpfa) * vectorX0Elements.get(k) - alpfa * deviationElementFromMean.
-                        get(listOfFunctions.get(listOfFunctions.size() - 1).getIntegerOfX()).get(k));
-            }*/
-
             //calculation f(Xr) (Step 7. Part 2 finding f(Xr))
             Double functionValueOfXr = calculateFunctionOfMinimization(listOfMarks, closestElements, vectorXrUsers,
                     vectorXrElements, proximityMeasure, meanMark, lambda3);
@@ -159,18 +139,6 @@ public class CalculationServise {
             //Step 8. Check Fr<Fl
             if (functionValueOfXr < listOfFunctions.get(0).valueOfF) {
                 //Step 9. Creating Xe
-                //List<Double> vectorXeUsers = new ArrayList<>(listOfMarks.size());
-                //List<Double> vectorXeElements = new ArrayList<>(listOfMarks.getUser(0).size());
-
-                /*for (int j = 0; j < listOfMarks.size(); j++) {
-                    //calculation Xe (Step 9. Part 1)
-                    vectorXeUsers.set(j, gamma * vectorXrUsers.get(j) + (1 - gamma) * vectorX0Users.get(j));
-                }*/
-
-                /*for (int k = 0; k < listOfMarks.getUser(0).size(); k++) {
-                    //calculation Xe (Step 9. Part 1)
-                    vectorXeElements.set(k, gamma * vectorXrElements.get(k) + (1 - gamma) * vectorX0Elements.get(k));
-                }*/
                 List<Double> vectorXeUsers = creatingNewVectorXforUsersOrElements(listOfMarks.size(), gamma, 1 - gamma,
                         vectorXrUsers, vectorX0Users);
 
@@ -209,8 +177,6 @@ public class CalculationServise {
                                 get(listOfFunctions.size() - 1), proximityMeasure, meanMark, lambda3));
             } else {
                 Double functionValueOfXc;
-                //List<Double> vectorXcUsers = new ArrayList<>(listOfMarks.size());
-                //List<Double> vectorXcElements = new ArrayList<>(listOfMarks.getUser(0).size());
                 List<Double> vectorXcUsers;
                 List<Double> vectorXcElements;
                 if (functionValueOfXr > listOfFunctions.get(listOfFunctions.size() - 1).valueOfF) {
@@ -224,17 +190,6 @@ public class CalculationServise {
                             1 - beta, deviationElementFromMean.get(listOfFunctions.get(listOfFunctions.size() - 1).
                                     getIntegerOfX()), vectorX0Elements);
 
-                    /*for (int j = 0; j < listOfMarks.size(); j++) {
-                        //calculation Xc (Step 14. Part 1)
-                        vectorXcUsers.set(j, beta * deviationUserFromMean.get(listOfFunctions.get(listOfFunctions.size() - 1).
-                                getIntegerOfX()).get(j) + (1 - beta) * vectorX0Users.get(j));
-                    }
-
-                    for (int k = 0; k < listOfMarks.getUser(0).size(); k++) {
-                        //calculation Xc (Step 14. Part 1)
-                        vectorXcElements.set(k, beta * deviationElementFromMean.get(listOfFunctions.get(listOfFunctions.size()
-                                - 1).getIntegerOfX()).get(k) + (1 - beta) * vectorX0Elements.get(k));
-                    }*/
                     //calculation f(Xc) (Step 14. Part 2 finding f(Xc))
                     functionValueOfXc = calculateFunctionOfMinimization(listOfMarks, closestElements, vectorXcUsers,
                             vectorXcElements, proximityMeasure, meanMark, lambda3);
@@ -246,15 +201,6 @@ public class CalculationServise {
                     vectorXcElements = creatingNewVectorXforUsersOrElements(listOfMarks.getUser(0).size(), beta,
                             1 - beta, vectorXrElements, vectorX0Elements);
 
-                    /*for (int j = 0; j < listOfMarks.size(); j++) {
-                        //calculation Xc (Step 14. Part 1)
-                        vectorXcUsers.set(j, beta * vectorXrUsers.get(j) + (1 - beta) * vectorX0Users.get(j));
-                    }
-
-                    for (int k = 0; k < listOfMarks.getUser(0).size(); k++) {
-                        //calculation Xc (Step 14. Part 1)
-                        vectorXcElements.set(k, beta * vectorXrElements.get(k) + (1 - beta) * vectorX0Elements.get(k));
-                    }*/
                     //calculation f(Xc) (Step 14. Part 2 finding f(Xc))
                     functionValueOfXc = calculateFunctionOfMinimization(listOfMarks, closestElements, vectorXcUsers,
                             vectorXcElements, proximityMeasure, meanMark, lambda3);
@@ -281,14 +227,6 @@ public class CalculationServise {
                                     beta, beta, deviationUserFromMean.get(i), deviationUserFromMean.get(listOfFunctions.get(0).
                                             integerOfX)));
 
-                            /*for (int k = 0; k < listOfMarks.getUser(0).size(); k++) {
-                                deviationElementFromMean.get(i).set(k, beta * (deviationElementFromMean.get(i).get(k) +
-                                        deviationElementFromMean.get(listOfFunctions.get(0).integerOfX).get(k)));
-                            }
-                            for (int j = 0; j < listOfMarks.size(); j++) {
-                                deviationUserFromMean.get(i).set(j, beta * (deviationUserFromMean.get(i).get(j) +
-                                        deviationUserFromMean.get(listOfFunctions.get(0).integerOfX).get(j)));
-                            }*/
                             listOfFunctions.get(i + 1).setIntegerOfX(i);
                             listOfFunctions.get(i + 1).setValueOfF(calculateFunctionOfMinimization(listOfMarks,
                                     closestElements, deviationUserFromMean.get(i), deviationElementFromMean.get(i),
@@ -323,7 +261,7 @@ public class CalculationServise {
 
     public static List<Double> creatingNewVectorXforUsersOrElements(int sizeVector, double paramLeft, double paramRight,
                                                                     List<Double> vectorLeft, List<Double> vectorRight) {
-        List<Double> vectorUsers = new ArrayList<>(sizeVector);
+        List<Double> vectorUsers = DoubleStream.generate(() -> 0).limit(sizeVector).boxed().collect(Collectors.toList());
         for (int j = 0; j < sizeVector; j++) {
             vectorUsers.set(j, paramLeft * vectorLeft.get(j) + paramRight * vectorRight.get(j));
         }
@@ -334,7 +272,7 @@ public class CalculationServise {
     public static Double calculateFunctionOfMinimization(ListOfMarks listOfMarks, List<List<Integer>> closestElements,
                                                          List<Double> listDeviationUsers, List<Double> listDeviationElements,
                                                          List<List<Double>> proximityMeasure, Double meanMark, Double lyambda3) {
-        Double valueOfFunktionMinimization = new Double(0);
+        Double valueOfFunctionMinimization = new Double(0);
 
         for (int k = 0; k < listOfMarks.getUser(0).size(); k++) {
             for (int j = 0; j < listOfMarks.size(); j++) {
@@ -342,12 +280,14 @@ public class CalculationServise {
                     double denominator = 0;
                     double numerator = 0;
                     for (int i = 0; i < closestElements.get(0).size(); i++) {
-                        denominator += proximityMeasure.get(k).get(closestElements.get(k).get(i)) *
-                                (listOfMarks.getUser(j).getMark(closestElements.get(k).get(i)) - meanMark -
-                                        listDeviationUsers.get(j) - listDeviationElements.get(closestElements.get(k).get(i)));
-                        numerator += Math.abs(proximityMeasure.get(k).get(closestElements.get(k).get(i)));
+                        if (listOfMarks.getUser(j).getMark(closestElements.get(k).get(i)) != null){
+                            denominator += proximityMeasure.get(k).get(closestElements.get(k).get(i)) *
+                                    (listOfMarks.getUser(j).getMark(closestElements.get(k).get(i)) - meanMark -
+                                            listDeviationUsers.get(j) - listDeviationElements.get(closestElements.get(k).get(i)));
+                            numerator += Math.abs(proximityMeasure.get(k).get(closestElements.get(k).get(i)));
+                        }
                     }
-                    valueOfFunktionMinimization += Math.pow(listOfMarks.getUser(j).getMark(k) - meanMark - listDeviationUsers.get(j) -
+                    valueOfFunctionMinimization += Math.pow(listOfMarks.getUser(j).getMark(k) - meanMark - listDeviationUsers.get(j) -
                             listDeviationElements.get(k) - denominator / numerator, 2);
                 }
             }
@@ -369,8 +309,8 @@ public class CalculationServise {
             sumU += listDeviationUsers.get(j) * listDeviationUsers.get(j);
         }
 
-        valueOfFunktionMinimization += lyambda3 * (sumD + sumS + sumU);
-        return valueOfFunktionMinimization;
+        valueOfFunctionMinimization += lyambda3 * (sumD + sumS + sumU);
+        return valueOfFunctionMinimization;
     }
 
 

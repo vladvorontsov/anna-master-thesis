@@ -27,7 +27,7 @@ public class ReaderXLS {
             Sheet originalData = originalFile.getSheetAt(0);
 
             Iterator<Row> originalDataRows = originalData.rowIterator();
-            Row title = originalDataRows.next();
+            //Row title = originalDataRows.next();
             ListOfMarks listOfMarks = new ListOfMarks();
 
             while (originalDataRows.hasNext()) {
